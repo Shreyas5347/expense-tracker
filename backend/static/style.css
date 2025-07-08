@@ -1,0 +1,287 @@
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef2f7;
+    color: #333;
+    line-height: 1.6;
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+}
+.center-heading {
+    text-align: center;
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+
+/* === Container & Headings === */
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  h2 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  /* === Lists === */
+  #categories-list,
+  #expenses-list,
+  #budgets-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+  }
+  #categories-list li,
+  #budgets-list li {
+    background: #fff;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    font-weight: 500;
+  }
+  #expenses-list li {
+    display: flex;
+    justify-content: space-between;
+    background: #fafafa;
+    border-left: 4px solid #3498db;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+  }
+  
+  /* === Form Controls === */
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+    align-items: center;
+  }
+  form input[type="text"],
+  form input[type="number"],
+  form input[type="date"],
+  form select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    flex: 1 1 150px;
+    transition: border-color 0.2s;
+  }
+  form input:focus,
+  form select:focus {
+    border-color: #3498db;
+    outline: none;
+  }
+  
+  /* === Buttons === */
+  form button,
+  button {
+    background: linear-gradient(135deg, #6ab7ff, #2979ff);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+    flex: 0 0 auto;
+  }
+  form button:hover,
+  button:hover {
+    background: linear-gradient(135deg, #2979ff, #1565c0);
+    transform: translateY(-2px);
+  }
+  form button:active {
+    transform: translateY(0);
+  }
+  
+  /* === Filter Controls === */
+  .filter-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .filter-controls select {
+    flex: 1 1 120px;
+  }
+  
+  /* === Utility === */
+  .text-right {
+    text-align: right;
+  }
+  
+
+h1, h2, h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* Hide Categories Section */
+#categories-section {
+    display: none;
+}
+
+/* Summary Section */
+.summary-section {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    margin-bottom: 40px;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    background: linear-gradient(to right, #6dd5fa, #ffffff);
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+}
+
+.big-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #3498db;
+    margin: 10px 0;
+}
+
+/* Budget Alerts */
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-success {
+    background-color: #d1f5d3;
+    color: #27632a;
+    border-left: 5px solid #28a745;
+}
+
+.alert-warning {
+    background-color: #fff7d6;
+    color: #856404;
+    border-left: 5px solid #ffc107;
+}
+
+/* Expenses Table */
+.expenses-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    animation: fadeIn 1s ease;
+}
+
+.expenses-table th {
+    background-color: #3498db;
+    color: white;
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 1rem;
+}
+
+.expenses-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+}
+
+.expenses-table tr:last-child td {
+    border-bottom: none;
+}
+
+.expenses-table tr:hover {
+    background-color: #f1f9ff;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+}
+
+.btn {
+    background: linear-gradient(to right, #3498db, #6dd5fa);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: background 0.4s, transform 0.2s;
+}
+
+.btn:hover {
+    background: linear-gradient(to right, #2980b9, #3498db);
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .expenses-table {
+        display: block;
+        overflow-x: auto;
+    }
+}

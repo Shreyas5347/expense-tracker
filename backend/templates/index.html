@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>    Expense Tracker     </title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  
+</head>
+<section class="summary-section">
+    <div class="summary-grid">
+        <div class="summary-card">
+            <!-- Content -->
+        </div>
+    </div>
+</section>
+
+<body>
+  <div class="container">
+    <h1 class="center-heading">Expense Tracker</h1>
+
+
+    <!-- Summary Section -->
+    <section class="summary-section">
+      <h2>Monthly Summary</h2>
+      <div id="summary-content">
+        <p>Loading summary...</p>
+      </div>
+      <div id="budget-alerts"></div>
+    </section>
+
+    <!-- Categories Section -->
+    <section>
+      <h2>Categories</h2>
+      <ul id="categories-list"></ul>
+      <form id="category-form">
+        <input type="text" id="new-category" placeholder="New category name" required />
+        <button type="submit">Add Category</button>
+      </form>
+    </section>
+
+    <!-- Expenses Section -->
+    <section>
+      <h2>All Expenses</h2>
+      <div class="filter-controls">
+        <select id="filter-month">
+          <option value="">All Months</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+        <select id="filter-year">
+          <option value="">All Years</option>
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+        </select>
+        <button id="apply-filter">Filter</button>
+      </div>
+      <ul id="expenses-list"></ul>
+    </section>
+
+    <!-- Add Expense Section -->
+    <section>
+      <h2>Add Expense</h2>
+      <form id="expense-form">
+        <input type="number" id="amount" placeholder="Amount" step="0.01" min="0" required />
+        <input type="date" id="date" required />
+        <input type="text" id="description" placeholder="Description" />
+        <select id="category" required>
+          <option value="">-- Select Category --</option>
+          <option value="groceries">groceries</option>
+
+        </select>
+        <button type="submit">Add Expense</button>
+      </form>
+    </section>
+
+    <!-- Budgets Section -->
+    <section>
+      <h2>Budgets</h2>
+      <ul id="budgets-list"></ul>
+      <form id="budget-form">
+        <select id="budget-category" required>
+          <option value="" disabled selected>-- Select Category --</option>
+        </select>
+        <input type="number" id="monthly-budget" placeholder="Monthly Budget" step="0.01" min="0" required />
+        <input type="text" id="reminder-message" placeholder="Reminder Message" />
+        <button type="submit">Set Budget</button>
+      </form>
+    </section>
+  </div>
+
+  
+</body>
+<script src="/static/script.js"></script>
+</html>
