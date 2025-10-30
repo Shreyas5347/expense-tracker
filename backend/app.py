@@ -20,8 +20,8 @@ def serve_static(filename):
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'root',
-    'database': 'expense_tracker1'
+    'password': 'king',
+    'database': 'expense_tracker'
 }
 
 def get_db():
