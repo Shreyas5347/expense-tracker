@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+application = app
 CORS(app)  # allow frontend to talk to backend
 
 @app.route('/')
@@ -195,3 +196,6 @@ def summary():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+else:
+    # This is for Vercel serverless deployment
+    application = app
