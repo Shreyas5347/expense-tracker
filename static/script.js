@@ -1,4 +1,4 @@
-const API = 'http://127.0.0.1:5000';
+const API = 'https://expense-tracker-1-06mt.onrender.com/API';
 console.log("Script loaded!");
 
 // async function addExpense(e) {
