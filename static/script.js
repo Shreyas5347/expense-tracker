@@ -1,4 +1,4 @@
-const API = 'https://expense-tracker-1-06mt.onrender.com';
+const API = 'https://expense-tracker-wgry.onrender.com';
 console.log("Script loaded!");
 
 // async function addExpense(e) {
