@@ -14,11 +14,11 @@ CORS(app)  # allow frontend to talk to backend
 
 def db():
     return mysql.connector.connect(
-    host=os.getenv("MYSQLHOST"),
-    port=int(os.getenv("MYSQLPORT")),
-    user=os.getenv("MYSQLUSER"),
-    password=os.getenv("MYSQLPASSWORD"),
-    database=os.getenv("MYSQLDATABASE")
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT")),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_DATABASE")
 )
 try:
     test_conn = db()
@@ -41,7 +41,7 @@ def serve_static(filename):
 
 @app.route('/categories', methods=['GET', 'POST'])
 def categories():
-    conn = get_db()
+    conn = db()
     cur = conn.cursor(dictionary=True)
 
     try:
@@ -84,7 +84,7 @@ def categories():
 
 @app.route('/expenses', methods=['GET', 'POST'])
 def expenses():
-    conn = get_db()
+    conn = db()
     cur = conn.cursor(dictionary=True)
 
     try:
@@ -174,7 +174,7 @@ def expenses():
 
 @app.route('/budgets', methods=['GET', 'POST'])
 def budgets():
-    conn = get_db()
+    conn = db()
     cur = conn.cursor(dictionary=True)
 
     try:
@@ -229,7 +229,7 @@ def budgets():
 
 @app.route('/summary', methods=['GET'])
 def summary():
-    conn = get_db()
+    conn = db()
     cur = conn.cursor(dictionary=True)
     
     try:
