@@ -12,14 +12,20 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 application = app
 CORS(app)  # allow frontend to talk to backend
 
-db = mysql.connector.connect(
+def db():
+    return mysql.connector.connect(
     host=os.getenv("MYSQLHOST"),
     port=int(os.getenv("MYSQLPORT")),
     user=os.getenv("MYSQLUSER"),
     password=os.getenv("MYSQLPASSWORD"),
     database=os.getenv("MYSQLDATABASE")
 )
-print("MySQL connected")
+try:
+    test_conn = db()
+    test_conn.close()
+    print("✅ MySQL connected successfully")
+except Exception as e:
+    print("❌ MySQL connection failed:", e)
 
 @app.route('/')
 def home():
@@ -30,16 +36,8 @@ def home():
 def serve_static(filename):
     return send_from_directory(app.static_folder, filename)
 
-# Database config (adjust user/password as needed)
-db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'reyna',
-    'database': 'expense_tracker'
-}
 
-def get_db():
-    return mysql.connector.connect(**db_config)
+
 
 @app.route('/categories', methods=['GET', 'POST'])
 def categories():
