@@ -1,4 +1,4 @@
-const API = '';
+const API = 'https://expense-tracker-1-06mt.onrender.com';
 
 let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
