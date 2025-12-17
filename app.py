@@ -40,6 +40,10 @@ except Exception as e:
 def home():
     return render_template('index.html')
 
+@app.route('/.well-known/appspecific/com.chrome.devtools.json')
+def chrome_devtools_probe():
+    return jsonify({})
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory(app.static_folder, filename)
@@ -163,6 +167,16 @@ def summary():
 
     now = datetime.now()
 
+    if request.args.get('month'):
+        month = int(request.args.get('month'))
+    else:
+        month = now.month
+        
+    if request.args.get('year'):
+        year = int(request.args.get('year'))
+    else:
+        year = now.year
+
     try:
         # Monthly total & average
         cur.execute("""
@@ -170,7 +184,7 @@ def summary():
             FROM expenses
             WHERE EXTRACT(MONTH FROM expense_date) = %s
               AND EXTRACT(YEAR FROM expense_date) = %s
-        """, (now.month, now.year))
+        """, (month, year))
         monthly = cur.fetchone()
 
         # Category-wise totals
@@ -193,16 +207,17 @@ def summary():
                 ON e.category_id = b.category_id
                 AND EXTRACT(MONTH FROM e.expense_date) = b.month
                 AND EXTRACT(YEAR FROM e.expense_date) = b.year
-            GROUP BY c.name, b.budget_amount
-        """)
+            WHERE b.month = %s AND b.year = %s
+            GROUP BY c.name, b.budget_amount, b.month, b.year
+        """, (month, year))
         budget = cur.fetchall()
 
         return jsonify({
             'monthly_summary': monthly,
             'by_category': categories,
             'budget_comparison': budget,
-            'month': now.month,
-            'year': now.year
+            'month': month,
+            'year': year
         })
 
     finally:

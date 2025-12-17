@@ -1,47 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Expense Tracker</title>
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker </title>
+ 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-<div class="container">
-
-  <!-- Header -->
-  <div class="header">
-    <h1><span class="header-emoji">💰</span> Expense Tracker</h1>
-    <p>Smart financial management for daily use</p>
-  </div>
-
-  <!-- Dashboard Stats -->
-  <div class="dashboard">
-    <div class="stat-card">
-      <div class="stat-label">Total Expenses</div>
-      <div class="stat-value" id="total-expenses">₹0</div>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1><span class="header-emoji">💰</span> Expense Tracker </h1>
+      <p>Smart financial management for daily use</p>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Average Expense</div>
-      <div class="stat-value" id="avg-expense">₹0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Total Budget</div>
-      <div class="stat-value" id="total-budget">₹0</div>
-      <div class="stat-change" id="budget-remaining">Remaining</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Transactions</div>
-      <div class="stat-value" id="transaction-count">0</div>
-    </div>
-  </div>
-
-  <!-- FILTERS -->
-  <div class="form-section">
+<div class="form-section">
     <h2>📅 Filter Dashboard</h2>
     <div class="form-grid">
       <div class="form-group">
@@ -74,42 +51,140 @@
     </div>
     <button id="apply-filters">Apply Filters</button>
   </div>
+   <!-- Dashboard Stats -->
+  <div class="dashboard">
+    <div class="stat-card">
+      <div class="stat-label">Total Expenses</div>
+      <div class="stat-value" id="total-expenses">₹0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Average Expense</div>
+      <div class="stat-value" id="avg-expense">₹0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Budget</div>
+      <div class="stat-value" id="total-budget">₹0</div>
+      <div class="stat-change" id="budget-remaining">Remaining</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Transactions</div>
+      <div class="stat-value" id="transaction-count">0</div>
+    </div>
+  </div>
+    <!-- Budget Alerts -->
+    <div id="alerts-container"></div>
 
-  <!-- Charts -->
-  <div class="charts-grid">
-    <div class="chart-container">
-      <h3>📊 Expenses by Category</h3>
-      <div class="chart-wrapper">
-        <canvas id="categoryPieChart"></canvas>
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-container">
+        <h3>📊 Expenses by Category</h3>
+        <div class="chart-wrapper">
+          <canvas id="categoryPieChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-container">
+        <h3>📈 Monthly Trend</h3>
+        <div class="chart-wrapper">
+          <canvas id="trendChart"></canvas>
+        </div>
       </div>
     </div>
 
-    <div class="chart-container">
-      <h3>📈 Monthly Trend</h3>
-      <div class="chart-wrapper">
-        <canvas id="trendChart"></canvas>
+    <div class="charts-grid">
+      <div class="chart-container">
+        <h3>💳 Category Breakdown</h3>
+        <div class="chart-wrapper">
+          <canvas id="categoryBarChart"></canvas>
+        </div>
       </div>
+      <div class="chart-container">
+        <h3>🎯 Budget vs Actual</h3>
+        <div class="chart-wrapper">
+          <canvas id="budgetComparisonChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Category -->
+    <div class="form-section">
+      <h2>➕ Add Category</h2>
+      <form id="category-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Category Name</label>
+            <input type="text" id="new-category" placeholder="e.g., Groceries, Transport" required />
+          </div>
+        </div>
+        <button type="submit">Add Category</button>
+      </form>
+      <div id="categories-display" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+    </div>
+
+    <!-- Add Expense -->
+    <div class="form-section">
+      <h2>💸 Add Expense</h2>
+      <form id="expense-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" id="amount" placeholder="0.00" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="category" required>
+              <option value="">Select Category</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="date" required />
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="description" placeholder="Optional note" />
+          </div>
+        </div>
+        <button type="submit">Add Expense</button>
+      </form>
+    </div>
+
+    <!-- Recent Expenses -->
+    <div class="form-section">
+      <h2>📋 Recent Expenses</h2>
+      <div class="expenses-list" id="expenses-list">
+        <p style="color: var(--text-secondary); text-align: center; padding: 20px;">No expenses yet</p>
+      </div>
+    </div>
+
+    <!-- Set Budget -->
+    <div class="form-section">
+      <h2>🎯 Set Budget</h2>
+      <form id="budget-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="budget-category" required>
+              <option value="">Select Category</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Monthly Budget (₹)</label>
+            <input type="number" id="monthly-budget" placeholder="0.00" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label>Reminder Message</label>
+            <input type="text" id="reminder-message" placeholder="Optional reminder" />
+          </div>
+        </div>
+        <button type="submit">Set Budget</button>
+      </form>
+      <div id="budgets-display" style="margin-top: 20px;"></div>
     </div>
   </div>
 
-  <div class="charts-grid">
-    <div class="chart-container">
-      <h3>💳 Category Breakdown</h3>
-      <div class="chart-wrapper">
-        <canvas id="categoryBarChart"></canvas>
-      </div>
-    </div>
-
-    <div class="chart-container">
-      <h3>🎯 Budget vs Actual</h3>
-      <div class="chart-wrapper">
-        <canvas id="budgetComparisonChart"></canvas>
-      </div>
-    </div>
-  </div>
-
-</div>
-
+ 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </body>
+
 </html>
