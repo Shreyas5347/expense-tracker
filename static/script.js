@@ -40,7 +40,12 @@ async function loadSummary() {
     document.getElementById('budget-remaining').textContent =
       `₹${(totalBudget - totalSpent).toFixed(2)} remaining`;
 
+    // Render Budget Bars
+    renderBudgetBars(summary.budget_comparison);
+
+    // Charts & Expenses List
     const exps = await fetchJSON(`${API}/expenses`);
+    renderExpenses(exps); // Render list
     document.getElementById('transaction-count').textContent = exps.length;
 
     updateCharts(summary, exps);
@@ -68,6 +73,39 @@ function getCategoryColor(name) {
 }
 
 // Update charts
+// Render Budget Bars
+function renderBudgetBars(budgets) {
+  const container = document.getElementById('budget-status-container');
+  if (!budgets || budgets.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No budgets set for this month.</p>';
+    return;
+  }
+
+  container.innerHTML = budgets.map(b => {
+    const budget = Number(b.budget_amount);
+    const spent = Number(b.spent);
+    const percent = budget > 0 ? (spent / budget) * 100 : 0;
+
+    let colorClass = 'bg-success';
+    if (percent >= 100) colorClass = 'bg-danger';
+    else if (percent >= 80) colorClass = 'bg-warning';
+
+    return `
+      <div class="budget-item">
+        <div class="budget-header">
+          <div class="budget-category">${b.category}</div>
+          <div class="budget-amounts">
+             <span class="spent">₹${spent.toFixed(2)}</span> / ₹${budget.toFixed(2)}
+          </div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill ${colorClass}" style="width: ${Math.min(percent, 100)}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 function updateCharts(summary, expenses) {
   // Helpers
   const getColors = (items) => items.map(c => getCategoryColor(c.category || c));
@@ -412,18 +450,7 @@ function showAlert(message, type) {
   }, 3000);
 }
 
-// Update loadSummary to also render expenses list
-const originalLoadSummary = loadSummary;
-loadSummary = async function () {
-  await originalLoadSummary();
-  // Also fetch expenses for the list
-  try {
-    const exps = await fetchJSON(`${API}/expenses`);
-    renderExpenses(exps);
-  } catch (err) {
-    console.error(err);
-  }
-}
+
 
 // Apply filter button
 document.getElementById('apply-filters')
