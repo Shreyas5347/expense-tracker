@@ -139,15 +139,16 @@ def budgets():
         data = request.get_json()
 
         cur.execute("""
-            INSERT INTO budgets (user_id, category_id, month, year, budget_amount)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO budgets (user_id, category_id, month, year, budget_amount, reminder_message)
+            VALUES (%s, %s, %s, %s, %s, %s)
             RETURNING budget_id
         """, (
             1,
             data['category_id'],
             data['month'],
             data['year'],
-            data['budget_amount']
+            data['budget_amount'],
+            data.get('reminder_message', '')
         ))
 
         conn.commit()

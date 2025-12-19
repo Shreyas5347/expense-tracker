@@ -416,6 +416,7 @@ document.getElementById('budget-form').addEventListener('submit', async (e) => {
   const data = {
     category_id: document.getElementById('budget-category').value,
     budget_amount: document.getElementById('monthly-budget').value,
+    reminder_message: document.getElementById('reminder-message').value,
     month: now.getMonth() + 1,
     year: now.getFullYear()
   };
