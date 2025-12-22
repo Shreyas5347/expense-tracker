@@ -7,10 +7,10 @@ from psycopg2.extras import RealDictCursor
 import os
 from functools import wraps
 from clerk_backend_api import Clerk
-clerk = Clerk(api_key=os.environ["CLERK_SECRET_KEY"])
+
 # Load environment variables
 load_dotenv()
-
+clerk = Clerk(bearer_auth=os.environ["CLERK_SECRET_KEY"])
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 application = app
@@ -61,6 +61,14 @@ except Exception as e:
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/login')
+def login():
+    return render_template('auth.html', mode='login')
+
+@app.route('/signup')
+def signup():
+    return render_template('auth.html', mode='signup')
 
 @app.route('/.well-known/appspecific/com.chrome.devtools.json')
 def chrome_devtools_probe():

@@ -1,5 +1,5 @@
-const API = 'https://expense-tracker-1-06mt.onrender.com';
-
+const API = '';
+// https://expense-tracker-1-06mt.onrender.com
 let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
 async function authFetchJSON(url, options = {}) {
@@ -33,7 +33,6 @@ window.addEventListener("load", async () => {
 
   if (Clerk.user) {
     // ✅ UI updates
-    document.getElementById("auth-buttons").style.display = "none";
     document.getElementById("user-info").style.display = "block";
     document.getElementById("user-email").innerText =
       Clerk.user.primaryEmailAddress.emailAddress;
@@ -41,12 +40,8 @@ window.addEventListener("load", async () => {
     // ✅ Logic / debugging
     console.log("Logged in user:", Clerk.user.id);
   } else {
-    // ❌ UI updates
-    document.getElementById("auth-buttons").style.display = "block";
-    document.getElementById("user-info").style.display = "none";
-
-    // ❌ Logic / debugging
-    console.log("Not logged in");
+    // ❌ Not logged in, redirect to login
+    window.location.href = '/login';
   }
 });
 
