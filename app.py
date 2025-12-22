@@ -5,14 +5,36 @@ from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
-
+from functools import wraps
+from clerk_backend_api import Clerk
+clerk = Clerk(api_key=os.environ["CLERK_SECRET_KEY"])
 # Load environment variables
 load_dotenv()
+
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 application = app
 CORS(app)
 
+def require_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        user_id = get_user_id()
+        if not user_id:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        # attach user_id to request for later use
+        request.user_id = user_id
+        return f(*args, **kwargs)
+    return decorated
+
+def get_user_id(): 
+    auth = request.headers.get("Authorization") 
+    if not auth: 
+        return None 
+    token = auth.replace("Bearer ", "") 
+    session = clerk.sessions.verify_session(token) 
+    return session.user_id
 # =========================
 # DATABASE CONNECTION
 # =========================
@@ -52,7 +74,9 @@ def serve_static(filename):
 # CATEGORIES
 # =========================
 @app.route('/categories', methods=['GET', 'POST'])
+@require_auth
 def categories():
+    user_id = request.user_id
     conn = db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -82,7 +106,9 @@ def categories():
 # EXPENSES
 # =========================
 @app.route('/expenses', methods=['GET', 'POST'])
+@require_auth
 def expenses():
+    
     conn = db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -122,7 +148,9 @@ def expenses():
 # BUDGETS
 # =========================
 @app.route('/budgets', methods=['GET', 'POST'])
+@require_auth
 def budgets():
+    user_id = request.user_id
     conn = db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -162,7 +190,9 @@ def budgets():
 # SUMMARY (FOR DASHBOARD)
 # =========================
 @app.route('/summary')
+@require_auth
 def summary():
+    user_id = request.user_id
     conn = db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 

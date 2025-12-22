@@ -3,6 +3,12 @@
 
 <head>
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_c3dlZXQtamFja2FsLTMxLmNsZXJrLmFjY291bnRzLmRldiQ"
+  src="https://js.clerk.dev/v4/clerk.browser.js">
+</script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +27,15 @@
       <h1><span class="header-emoji">💰</span> Expense Tracker </h1>
       <p>Smart financial management for daily use</p>
     </div>
+<div id="auth-buttons">
+  <button onclick="Clerk.openSignIn()">Login</button>
+  <button onclick="Clerk.openSignUp()">Sign Up</button>
+</div>
+
+<div id="user-info" style="display:none;">
+  <span id="user-email"></span>
+  <button onclick="Clerk.signOut()">Logout</button>
+</div>
 
     <div class="form-section">
       <h2>📅 Filter Dashboard</h2>

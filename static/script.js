@@ -2,12 +2,54 @@ const API = 'https://expense-tracker-1-06mt.onrender.com';
 
 let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
-// Fetch helper
-async function fetchJSON(url, options) {
-  const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+async function authFetchJSON(url, options = {}) {
+  // Make sure Clerk is loaded
+  await Clerk.load();
+
+  // Get Clerk JWT token
+  const token = await Clerk.session.getToken();
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+
   return res.json();
 }
+
+
+
+
+window.addEventListener("load", async () => {
+  await Clerk.load();
+
+  if (Clerk.user) {
+    // ✅ UI updates
+    document.getElementById("auth-buttons").style.display = "none";
+    document.getElementById("user-info").style.display = "block";
+    document.getElementById("user-email").innerText =
+      Clerk.user.primaryEmailAddress.emailAddress;
+
+    // ✅ Logic / debugging
+    console.log("Logged in user:", Clerk.user.id);
+  } else {
+    // ❌ UI updates
+    document.getElementById("auth-buttons").style.display = "block";
+    document.getElementById("user-info").style.display = "none";
+
+    // ❌ Logic / debugging
+    console.log("Not logged in");
+  }
+});
+
 
 // Load summary with filters
 async function loadSummary() {
@@ -21,7 +63,7 @@ async function loadSummary() {
     if (year) params.push(`year=${year}`);
     if (params.length) url += `?${params.join('&')}`;
 
-    const summary = await fetchJSON(url);
+    const summary = await authFetchJSON(url);
 
     // Stats
     document.getElementById('total-expenses').textContent =
@@ -44,7 +86,7 @@ async function loadSummary() {
     renderBudgetBars(summary.budget_comparison);
 
     // Charts & Expenses List
-    const exps = await fetchJSON(`${API}/expenses`);
+    const exps = await authFetchJSON(`${API}/expenses`);
     renderExpenses(exps); // Render list
     document.getElementById('transaction-count').textContent = exps.length;
 
@@ -310,7 +352,7 @@ function updateCharts(summary, expenses) {
 // Load categories
 async function loadCategories() {
   try {
-    const categories = await fetchJSON(`${API}/categories`);
+    const categories = await authFetchJSON(`${API}/categories`);
 
     // Dropdowns
     const expenseSelect = document.getElementById('category');
@@ -368,7 +410,7 @@ document.getElementById('category-form').addEventListener('submit', async (e) =>
   const name = nameInput.value;
 
   try {
-    await fetchJSON(`${API}/categories`, {
+    await authFetchJSON(`${API}/categories`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name })
@@ -394,7 +436,7 @@ document.getElementById('expense-form').addEventListener('submit', async (e) => 
   };
 
   try {
-    await fetchJSON(`${API}/expenses`, {
+    await authFetchJSON(`${API}/expenses`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -422,7 +464,7 @@ document.getElementById('budget-form').addEventListener('submit', async (e) => {
   };
 
   try {
-    await fetchJSON(`${API}/budgets`, {
+    await authFetchJSON(`${API}/budgets`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
