@@ -146,15 +146,15 @@ except Exception as e:
 # =========================
 @app.route('/')
 def home():
-    return render_template('index.html', clerk_pub_key=os.environ["NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"])
+    return render_template('index.html')
 
 @app.route('/login')
 def login():
-    return render_template('auth.html', mode='login', clerk_pub_key=os.environ["NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"])
+    return render_template('auth.html', mode='login')
 
 @app.route('/signup')
 def signup():
-    return render_template('auth.html', mode='signup', clerk_pub_key=os.environ["NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"])
+    return render_template('auth.html', mode='signup')
 
 @app.route('/.well-known/appspecific/com.chrome.devtools.json')
 def chrome_devtools_probe():
