@@ -16,8 +16,7 @@ load_dotenv()
 
 if not os.environ.get("CLERK_SECRET_KEY"):
     raise RuntimeError("CLERK_SECRET_KEY environment variable not set")
-if not os.environ.get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"):
-    raise RuntimeError("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY environment variable not set")
+
 if not os.environ.get("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL environment variable not set")
 
