@@ -1,4 +1,4 @@
-const API = ''; // Use relative URLs for local development
+const API = 'https://expense-tracker-1-06mt.onrender.com'; // Use relative URLs for local development
 // const API = 'https://expense-tracker-1-06mt.onrender.com'; // Production URL
 let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
