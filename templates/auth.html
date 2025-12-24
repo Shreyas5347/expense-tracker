@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <title>{{ 'Sign Up' if mode == 'signup' else 'Login' }} - Expense Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script async crossorigin="anonymous"
-        data-clerk-publishable-key="pk_test_c3dlZXQtamFja2FsLTMxLmNsZXJrLmFjY291bnRzLmRldiQ"
+    <script async crossorigin="anonymous" data-clerk-publishable-key="{{ clerk_pub_key }}"
         src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js">
         </script>
     <style>
@@ -26,7 +26,7 @@
             align-items: center;
             justify-content: center;
             background: #0f172a;
-            overflow: hidden;
+            overflow-y: auto;
             position: relative;
         }
 
@@ -188,7 +188,8 @@
                                 footer: { display: 'none' } // Hiding default footer since we added custom links
                             }
                         },
-                        redirectUrl: '/'
+                        forceRedirectUrl: '/',
+                        fallbackRedirectUrl: '/'
                     });
                 } else {
                     Clerk.mountSignIn(authContainer, {
@@ -215,7 +216,8 @@
                                 footer: { display: 'none' }
                             }
                         },
-                        redirectUrl: '/'
+                        forceRedirectUrl: '/',
+                        fallbackRedirectUrl: '/'
                     });
                 }
             } catch (err) {

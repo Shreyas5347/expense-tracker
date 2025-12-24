@@ -1,28 +1,37 @@
-const API = 'https://expense-tracker-1-06mt.onrender.com';
-// https://expense-tracker-1-06mt.onrender.com
+const API = ''; // Use relative URLs for local development
+// const API = 'https://expense-tracker-1-06mt.onrender.com'; // Production URL
 let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
+async function waitForClerk() {
+  return new Promise((resolve) => {
+    const check = () => {
+      if (window.Clerk && Clerk.loaded) {
+        resolve();
+      } else {
+        setTimeout(check, 50);
+      }
+    };
+    check();
+  });
+}
+
 async function authFetchJSON(url, options = {}) {
-  // Make sure Clerk is loaded
-  await Clerk.load();
+  await waitForClerk();
 
-  // Get Clerk JWT token
-  const token = await Clerk.session.getToken();
-
-  const res = await fetch(url, {
+  const token = await Clerk.session?.getToken();
+  if (!token) {
+    throw new Error("No Clerk token found");
+  }
+  return fetch(url, {
     ...options,
     headers: {
       ...(options.headers || {}),
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
+      Authorization: token ? `Bearer ${token}` : ""
     }
+  }).then(res => {
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
   });
-
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`);
-  }
-
-  return res.json();
 }
 
 
