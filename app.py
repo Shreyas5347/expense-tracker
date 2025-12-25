@@ -95,7 +95,7 @@ def get_user_id():
     auth_header = request.headers.get("Authorization")
 
     if not auth_header or not auth_header.startswith("Bearer "):
-        print("❌ Missing Authorization header")
+       # print("❌ Missing Authorization header")
         return None
 
     token = auth_header.split(" ")[1]
