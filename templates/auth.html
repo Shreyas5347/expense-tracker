@@ -8,7 +8,6 @@
     <title>{{ 'Sign Up' if mode == 'signup' else 'Login' }} - Expense Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -29,7 +28,6 @@
             position: relative;
         }
 
-        /* Animated Background */
         body::before {
             content: '';
             position: absolute;
@@ -42,17 +40,9 @@
         }
 
         @keyframes rotate {
-            0% {
-                transform: rotate(0deg) translate(-10%, -10%);
-            }
-
-            50% {
-                transform: rotate(180deg) translate(10%, 10%);
-            }
-
-            100% {
-                transform: rotate(360deg) translate(-10%, -10%);
-            }
+            0% { transform: rotate(0deg) translate(-10%, -10%); }
+            50% { transform: rotate(180deg) translate(10%, 10%); }
+            100% { transform: rotate(360deg) translate(-10%, -10%); }
         }
 
         .container {
@@ -76,14 +66,8 @@
         }
 
         @keyframes float {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .header {
@@ -114,7 +98,17 @@
             align-items: center;
         }
 
-        /* Clerk specific overrides for transparency */
+        .loading {
+            color: white;
+            opacity: 0.7;
+            text-align: center;
+        }
+
+        /* Hide loading after Clerk mounts */
+        .loading.hidden {
+            display: none;
+        }
+
         .cl-card {
             background: transparent !important;
             box-shadow: none !important;
@@ -130,7 +124,7 @@
                 <p>Master your finances with style</p>
             </div>
             <div id="auth-container">
-                <div class="loading" style="color: white; opacity: 0.7;">Loading security...</div>
+                <div class="loading" id="loading-indicator">Loading authentication...</div>
             </div>
             <div style="text-align: center; margin-top: 20px;">
                 <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">
@@ -143,58 +137,41 @@
             </div>
         </div>
     </div>
+
     <script 
         async
         crossorigin="anonymous"
         data-clerk-publishable-key="{{ clerk_publishable_key }}"
         src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
-        onload="initClerkAuth()"
+        onload="window.clerkLoaded = true"
     ></script>
-    <!-- ✅ Load Clerk SDK Dynamically -->
+
     <script>
-        console.log("📦 [AUTH] Loading Clerk SDK dynamically...");
-        const clerkScript = document.createElement('script');
-        clerkScript.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
-        clerkScript.crossOrigin = 'anonymous';
-        clerkScript.onload = () => {
-            console.log("✅ [AUTH] Clerk SDK loaded successfully");
-            initClerkAuth();
-        };
-        clerkScript.onerror = () => {
-            console.error("❌ [AUTH] Failed to load Clerk SDK");
-        };
-        document.body.appendChild(clerkScript);
-
         async function initClerkAuth() {
-            console.log("🔍 [AUTH] Starting Clerk initialization...");
+            console.log("🔍 [AUTH] Starting initialization...");
             
-            // Wait for Clerk to be available
-            let attempts = 0;
-            while (!window.Clerk && attempts < 100) {
-                console.log(`⏳ [AUTH] Waiting for Clerk... (attempt ${attempts + 1})`);
-                await new Promise(res => setTimeout(res, 100));
-                attempts++;
-            }
-
-            if (!window.Clerk) {
-                console.error("❌ [AUTH] Clerk SDK not available");
-                document.getElementById('auth-container').innerHTML = 
-                    '<p style="color: #ff6b6b;">Failed to load authentication. Please refresh.</p>';
-                return;
+            // Wait for Clerk SDK to load
+            while (!window.Clerk) {
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
 
             try {
-                await Clerk.load({
-                    publishableKey: window.clerkPublishableKey,
-                });
-
+                await Clerk.load();
                 console.log("✅ [AUTH] Clerk loaded successfully");
-                const authContainer = document.getElementById('auth-container');
-                authContainer.innerHTML = '';
 
+                // Check if already logged in
                 if (Clerk.user) {
+                    console.log("ℹ️ [AUTH] User already logged in, redirecting...");
                     window.location.href = '/';
                     return;
+                }
+
+                const authContainer = document.getElementById('auth-container');
+                const loadingIndicator = document.getElementById('loading-indicator');
+                
+                // Hide loading indicator only after we're ready to mount
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
                 }
 
                 const mode = "{{ mode }}";
@@ -219,23 +196,40 @@
                             dividerLine: { background: 'rgba(255,255,255,0.2)' },
                             dividerText: { color: 'rgba(255,255,255,0.6)' },
                             formFieldLabel: { color: 'white' },
+                            formButtonPrimary: {
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                            },
                             footer: { display: 'none' }
                         }
                     },
-                    forceRedirectUrl: '/',
-                    fallbackRedirectUrl: '/'
+                    afterSignInUrl: '/',
+                    afterSignUpUrl: '/',
+                    signInUrl: '/login',
+                    signUpUrl: '/signup'
                 };
 
+                console.log(`ℹ️ [AUTH] Mounting ${mode} component...`);
+
                 if (mode === 'signup') {
-                    Clerk.mountSignUp(authContainer, config);
+                    await Clerk.mountSignUp(authContainer, config);
                 } else {
-                    Clerk.mountSignIn(authContainer, config);
+                    await Clerk.mountSignIn(authContainer, config);
                 }
+
+                console.log("✅ [AUTH] Component mounted successfully");
+
             } catch (err) {
-                console.error('❌ [AUTH] Clerk load failed:', err);
-                document.getElementById('auth-container').innerHTML = 
-                    '<p style="color: #ff6b6b;">Error loading authentication. Please refresh.</p>';
+                console.error('❌ [AUTH] Initialization failed:', err);
+                const authContainer = document.getElementById('auth-container');
+                authContainer.innerHTML = '<p style="color: #ff6b6b; text-align: center;">Error loading authentication. Please refresh the page.</p>';
             }
+        }
+
+        // Start initialization when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initClerkAuth);
+        } else {
+            initClerkAuth();
         }
     </script>
 </body>

@@ -10,28 +10,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-  <!-- ✅ Set Clerk Config BEFORE SDK loads -->
-  <script>
-    // Set publishable key
-    window.CLERK_PUBLISHABLE_KEY = "{{ clerk_publishable_key }}";
-    console.log("🔑 Publishable Key Set:", window.CLERK_PUBLISHABLE_KEY ? "YES" : "NO");
-    console.log("🔑 Key Value:", window.CLERK_PUBLISHABLE_KEY);
-    console.log("🔑 Key Length:", window.CLERK_PUBLISHABLE_KEY ? window.CLERK_PUBLISHABLE_KEY.length : 0);
-  </script>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
   <div class="container">
-    <!-- Header -->
     <div class="header">
       <h1><span class="header-emoji">💰</span> Expense Tracker</h1>
       <p>Smart financial management for daily use</p>
 
       <div id="user-info" style="display:none; margin-top: 1rem;">
         <span id="user-email" style="margin-right: 10px; font-weight: 500;"></span>
-        <button onclick="Clerk.signOut()" style="padding: 5px 10px; font-size: 0.9rem;">Logout</button>
+        <button onclick="Clerk.signOut().then(() => window.location.href = '/login')" style="padding: 5px 10px; font-size: 0.9rem;">Logout</button>
       </div>
     </div>
 
@@ -69,10 +59,8 @@
       <button id="apply-filters">Apply Filters</button>
     </div>
 
-    <!-- Budget Alerts -->
     <div id="alerts-container"></div>
 
-    <!-- Dashboard Stats -->
     <div class="dashboard">
       <div class="stat-card">
         <div class="stat-label">Total Expenses</div>
@@ -93,9 +81,7 @@
       </div>
     </div>
 
-    <!-- Forms Container -->
     <div class="forms-grid-container">
-      <!-- Add Expense -->
       <div class="form-section">
         <h2>💸 Add Expense</h2>
         <form id="expense-form">
@@ -123,7 +109,6 @@
         </form>
       </div>
 
-      <!-- Add Category -->
       <div class="form-section">
         <h2>➕ Add Category</h2>
         <form id="category-form">
@@ -138,7 +123,6 @@
         <div id="categories-display" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
       </div>
 
-      <!-- Set Budget -->
       <div class="form-section">
         <h2>🎯 Set Budget</h2>
         <form id="budget-form">
@@ -163,7 +147,6 @@
       </div>
     </div>
 
-    <!-- Budget Status Section -->
     <div class="form-section" id="budget-status-section">
       <h2>📊 Budget Status</h2>
       <div id="budget-status-container">
@@ -171,7 +154,6 @@
       </div>
     </div>
 
-    <!-- Recent Expenses -->
     <div class="form-section">
       <h2>📋 Recent Expenses</h2>
       <div class="expenses-list" id="expenses-list">
@@ -179,7 +161,6 @@
       </div>
     </div>
 
-    <!-- Charts -->
     <div class="charts-grid">
       <div class="chart-container">
         <h3>📊 Expenses by Category</h3>
@@ -211,13 +192,11 @@
     </div>
   </div>
 
-  <!-- ✅ Load Clerk SDK with data-clerk-publishable-key attribute -->
   <script 
     async
     crossorigin="anonymous"
     data-clerk-publishable-key="{{ clerk_publishable_key }}"
     src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
-    onload="console.log('✅ Clerk SDK script loaded')"
   ></script>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
