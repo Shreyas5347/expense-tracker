@@ -20,6 +20,9 @@ if not os.environ.get("CLERK_SECRET_KEY"):
 if not os.environ.get("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL environment variable not set")
 
+if not os.environ.get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"):
+    raise RuntimeError("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY environment variable not set")
+
 
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -146,15 +149,15 @@ except Exception as e:
 # =========================
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', clerk_publishable_key=os.environ.get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"))
 
 @app.route('/login')
 def login():
-    return render_template('auth.html', mode='login')
+    return render_template('auth.html', mode='login', clerk_publishable_key=os.environ.get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"))
 
 @app.route('/signup')
 def signup():
-    return render_template('auth.html', mode='signup')
+    return render_template('auth.html', mode='signup', clerk_publishable_key=os.environ.get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"))
 
 @app.route('/.well-known/appspecific/com.chrome.devtools.json')
 def chrome_devtools_probe():

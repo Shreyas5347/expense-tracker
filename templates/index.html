@@ -2,29 +2,31 @@
 <html lang="en">
 
 <head>
-  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-<script
-  crossorigin="anonymous"
-  data-clerk-publishable-key="pk_test_c3dlZXQtamFja2FsLTMxLmNsZXJrLmFjY291bnRzLmRldiQ"
-  src="https://sweet-jackal-31.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
-  type="text/javascript">
-</script>
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expense Tracker </title>
+  <title>Expense Tracker</title>
 
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <!-- ✅ Set Clerk Config BEFORE SDK loads -->
+  <script>
+    // Set publishable key
+    window.CLERK_PUBLISHABLE_KEY = "{{ clerk_publishable_key }}";
+    console.log("🔑 Publishable Key Set:", window.CLERK_PUBLISHABLE_KEY ? "YES" : "NO");
+    console.log("🔑 Key Value:", window.CLERK_PUBLISHABLE_KEY);
+    console.log("🔑 Key Length:", window.CLERK_PUBLISHABLE_KEY ? window.CLERK_PUBLISHABLE_KEY.length : 0);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
   <div class="container">
     <!-- Header -->
-    <!-- Header -->
     <div class="header">
-      <h1><span class="header-emoji">💰</span> Expense Tracker </h1>
+      <h1><span class="header-emoji">💰</span> Expense Tracker</h1>
       <p>Smart financial management for daily use</p>
 
       <div id="user-info" style="display:none; margin-top: 1rem;">
@@ -91,7 +93,7 @@
       </div>
     </div>
 
-    <!-- Forms Container (Grid for Desktop) -->
+    <!-- Forms Container -->
     <div class="forms-grid-container">
       <!-- Add Expense -->
       <div class="form-section">
@@ -165,7 +167,6 @@
     <div class="form-section" id="budget-status-section">
       <h2>📊 Budget Status</h2>
       <div id="budget-status-container">
-        <!-- Progress bars injected here -->
         <p style="color: var(--text-secondary); text-align: center;">No budgets set for this month.</p>
       </div>
     </div>
@@ -177,8 +178,6 @@
         <p style="color: var(--text-secondary); text-align: center; padding: 20px;">No expenses yet</p>
       </div>
     </div>
-
-
 
     <!-- Charts -->
     <div class="charts-grid">
@@ -210,11 +209,18 @@
         </div>
       </div>
     </div>
+  </div>
 
+  <!-- ✅ Load Clerk SDK with data-clerk-publishable-key attribute -->
+  <script 
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="{{ clerk_publishable_key }}"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+    onload="console.log('✅ Clerk SDK script loaded')"
+  ></script>
 
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
 </html>

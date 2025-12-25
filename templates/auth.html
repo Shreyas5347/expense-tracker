@@ -7,9 +7,8 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <title>{{ 'Sign Up' if mode == 'signup' else 'Login' }} - Expense Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script async crossorigin="anonymous" data-clerk-publishable-key="{{ clerk_pub_key }}"
-        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js">
-        </script>
+    
+    
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -77,7 +76,6 @@
         }
 
         @keyframes float {
-
             0%,
             100% {
                 transform: translateY(0);
@@ -132,7 +130,6 @@
                 <p>Master your finances with style</p>
             </div>
             <div id="auth-container">
-                <!-- Clerk component will mount here -->
                 <div class="loading" style="color: white; opacity: 0.7;">Loading security...</div>
             </div>
             <div style="text-align: center; margin-top: 20px;">
@@ -146,87 +143,100 @@
             </div>
         </div>
     </div>
-
+    <script 
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="{{ clerk_publishable_key }}"
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+        onload="initClerkAuth()"
+    ></script>
+    <!-- ✅ Load Clerk SDK Dynamically -->
     <script>
-        const pubKey = document.querySelector('script[data-clerk-publishable-key]').getAttribute('data-clerk-publishable-key');
+        console.log("📦 [AUTH] Loading Clerk SDK dynamically...");
+        const clerkScript = document.createElement('script');
+        clerkScript.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
+        clerkScript.crossOrigin = 'anonymous';
+        clerkScript.onload = () => {
+            console.log("✅ [AUTH] Clerk SDK loaded successfully");
+            initClerkAuth();
+        };
+        clerkScript.onerror = () => {
+            console.error("❌ [AUTH] Failed to load Clerk SDK");
+        };
+        document.body.appendChild(clerkScript);
 
-        async function loadClerk() {
+        async function initClerkAuth() {
+            console.log("🔍 [AUTH] Starting Clerk initialization...");
+            
+            // Wait for Clerk to be available
+            let attempts = 0;
+            while (!window.Clerk && attempts < 100) {
+                console.log(`⏳ [AUTH] Waiting for Clerk... (attempt ${attempts + 1})`);
+                await new Promise(res => setTimeout(res, 100));
+                attempts++;
+            }
+
+            if (!window.Clerk) {
+                console.error("❌ [AUTH] Clerk SDK not available");
+                document.getElementById('auth-container').innerHTML = 
+                    '<p style="color: #ff6b6b;">Failed to load authentication. Please refresh.</p>';
+                return;
+            }
+
             try {
-                await Clerk.load();
+                await Clerk.load({
+                    publishableKey: window.clerkPublishableKey,
+                });
+
+                console.log("✅ [AUTH] Clerk loaded successfully");
                 const authContainer = document.getElementById('auth-container');
-                authContainer.innerHTML = ''; // Clear loading
+                authContainer.innerHTML = '';
 
                 if (Clerk.user) {
-                    // Already logged in, redirect to dashboard
                     window.location.href = '/';
                     return;
                 }
 
                 const mode = "{{ mode }}";
+                const config = {
+                    appearance: {
+                        variables: {
+                            colorPrimary: '#667eea',
+                            colorText: '#ffffff',
+                            colorBackground: 'transparent',
+                            colorInputBackground: 'rgba(255,255,255,0.1)',
+                            colorInputText: '#ffffff'
+                        },
+                        elements: {
+                            card: { boxShadow: 'none', background: 'transparent' },
+                            headerTitle: { color: 'white' },
+                            headerSubtitle: { color: 'rgba(255,255,255,0.8)' },
+                            socialButtonsBlockButton: {
+                                background: 'rgba(255,255,255,0.1)',
+                                color: 'white',
+                                border: '1px solid rgba(255,255,255,0.2)'
+                            },
+                            dividerLine: { background: 'rgba(255,255,255,0.2)' },
+                            dividerText: { color: 'rgba(255,255,255,0.6)' },
+                            formFieldLabel: { color: 'white' },
+                            footer: { display: 'none' }
+                        }
+                    },
+                    forceRedirectUrl: '/',
+                    fallbackRedirectUrl: '/'
+                };
+
                 if (mode === 'signup') {
-                    Clerk.mountSignUp(authContainer, {
-                        appearance: {
-                            variables: {
-                                colorPrimary: '#667eea',
-                                colorText: '#ffffff',
-                                colorBackground: 'transparent',
-                                colorInputBackground: 'rgba(255,255,255,0.1)',
-                                colorInputText: '#ffffff'
-                            },
-                            elements: {
-                                card: { boxShadow: 'none', background: 'transparent' },
-                                headerTitle: { color: 'white' },
-                                headerSubtitle: { color: 'rgba(255,255,255,0.8)' },
-                                socialButtonsBlockButton: {
-                                    background: 'rgba(255,255,255,0.1)',
-                                    color: 'white',
-                                    border: '1px solid rgba(255,255,255,0.2)'
-                                },
-                                dividerLine: { background: 'rgba(255,255,255,0.2)' },
-                                dividerText: { color: 'rgba(255,255,255,0.6)' },
-                                formFieldLabel: { color: 'white' },
-                                footer: { display: 'none' } // Hiding default footer since we added custom links
-                            }
-                        },
-                        forceRedirectUrl: '/',
-                        fallbackRedirectUrl: '/'
-                    });
+                    Clerk.mountSignUp(authContainer, config);
                 } else {
-                    Clerk.mountSignIn(authContainer, {
-                        appearance: {
-                            variables: {
-                                colorPrimary: '#667eea',
-                                colorText: '#ffffff',
-                                colorBackground: 'transparent',
-                                colorInputBackground: 'rgba(255,255,255,0.1)',
-                                colorInputText: '#ffffff'
-                            },
-                            elements: {
-                                card: { boxShadow: 'none', background: 'transparent' },
-                                headerTitle: { color: 'white' },
-                                headerSubtitle: { color: 'rgba(255,255,255,0.8)' },
-                                socialButtonsBlockButton: {
-                                    background: 'rgba(255,255,255,0.1)',
-                                    color: 'white',
-                                    border: '1px solid rgba(255,255,255,0.2)'
-                                },
-                                dividerLine: { background: 'rgba(255,255,255,0.2)' },
-                                dividerText: { color: 'rgba(255,255,255,0.6)' },
-                                formFieldLabel: { color: 'white' },
-                                footer: { display: 'none' }
-                            }
-                        },
-                        forceRedirectUrl: '/',
-                        fallbackRedirectUrl: '/'
-                    });
+                    Clerk.mountSignIn(authContainer, config);
                 }
             } catch (err) {
-                console.error('Error loading Clerk:', err);
-                document.getElementById('auth-container').innerHTML = '<p style="color: #ff6b6b;">Error loading authentication. Please refresh.</p>';
+                console.error('❌ [AUTH] Clerk load failed:', err);
+                document.getElementById('auth-container').innerHTML = 
+                    '<p style="color: #ff6b6b;">Error loading authentication. Please refresh.</p>';
             }
         }
-
-        window.addEventListener('load', loadClerk);
     </script>
 </body>
 

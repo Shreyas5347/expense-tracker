@@ -1,61 +1,119 @@
-const API = 'https://expense-tracker-1-06mt.onrender.com'; // Use relative URLs for local development
+const API = ''; // Use relative URLs for local development
 // const API = 'https://expense-tracker-1-06mt.onrender.com'; // Production URL
 let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
-async function waitForClerk() {
-  return new Promise((resolve) => {
-    const check = () => {
-      if (window.Clerk && Clerk.loaded) {
-        resolve();
-      } else {
-        setTimeout(check, 50);
-      }
-    };
-    check();
-  });
+/* =========================
+   CLERK INITIALIZATION
+========================= */
+
+async function initClerk() {
+  console.log("🔍 Starting Clerk initialization...");
+  
+  // Wait for Clerk SDK to be available
+  let attempts = 0;
+  while (!window.Clerk && attempts < 100) {
+    await new Promise(res => setTimeout(res, 100));
+    attempts++;
+  }
+
+  if (!window.Clerk) {
+    console.error("❌ Clerk SDK not available");
+    return false;
+  }
+
+  console.log("✅ Clerk SDK available");
+
+  try {
+    // Clerk will auto-initialize with the data-clerk-publishable-key attribute
+    await Clerk.load();
+    console.log("✅ Clerk initialized successfully");
+    return true;
+  } catch (error) {
+    console.error("❌ Clerk initialization failed:", error);
+    return false;
+  }
 }
+
+async function waitForClerk() {
+  let attempts = 0;
+  while ((!window.Clerk || !Clerk.loaded) && attempts < 100) {
+    await new Promise(res => setTimeout(res, 50));
+    attempts++;
+  }
+  
+  if (!window.Clerk || !Clerk.loaded) {
+    throw new Error("Clerk failed to load");
+  }
+}
+
+/* =========================
+   AUTH FETCH
+========================= */
 
 async function authFetchJSON(url, options = {}) {
   await waitForClerk();
 
   const token = await Clerk.session?.getToken();
   if (!token) {
-    throw new Error("No Clerk token found");
+    throw new Error("❌ No Clerk token found");
   }
-  return fetch(url, {
+
+  const res = await fetch(url, {
     ...options,
     headers: {
       ...(options.headers || {}),
-      Authorization: token ? `Bearer ${token}` : ""
-    }
-  }).then(res => {
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+      Authorization: `Bearer ${token}`,
+    },
   });
+
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
-
-
+/* =========================
+   ON PAGE LOAD
+========================= */
 
 window.addEventListener("load", async () => {
-  await Clerk.load();
+  console.log("📄 Page Loaded");
+  
+  try {
+    const clerkInitialized = await initClerk();
+    
+    if (!clerkInitialized) {
+      console.error("❌ Failed to initialize Clerk");
+      alert("Authentication system failed to load. Please refresh the page.");
+      return;
+    }
 
-  if (Clerk.user) {
-    // ✅ UI updates
+    await waitForClerk();
+
+    if (!Clerk.user) {
+      console.log("ℹ️ No user logged in, redirecting to login...");
+      window.location.href = "/login";
+      return;
+    }
+
+    // UI updates
     document.getElementById("user-info").style.display = "block";
     document.getElementById("user-email").innerText =
       Clerk.user.primaryEmailAddress.emailAddress;
 
-    // ✅ Logic / debugging
-    console.log("Logged in user:", Clerk.user.id);
-  } else {
-    // ❌ Not logged in, redirect to login
-    window.location.href = '/login';
+    console.log("✅ Logged in user:", Clerk.user.id);
+
+    // Initial data load
+    await loadCategories();
+    await loadSummary();
+
+  } catch (err) {
+    console.error("❌ Initialization failed:", err);
+    alert("Failed to load the application. Please refresh the page.");
   }
 });
+/* =========================
+   LOAD SUMMARY
+========================= */
 
-
-// Load summary with filters
 async function loadSummary() {
   try {
     const month = document.getElementById('filter-month').value;
@@ -91,7 +149,7 @@ async function loadSummary() {
 
     // Charts & Expenses List
     const exps = await authFetchJSON(`${API}/expenses`);
-    renderExpenses(exps); // Render list
+    renderExpenses(exps);
     document.getElementById('transaction-count').textContent = exps.length;
 
     updateCharts(summary, exps);
@@ -101,8 +159,10 @@ async function loadSummary() {
   }
 }
 
-// Update charts
-// Consistent Palette
+/* =========================
+   CHARTS
+========================= */
+
 const PALETTE = [
   '#8B5CF6', '#EC4899', '#10B981', '#F59E0B',
   '#3B82F6', '#6366F1', '#F97316', '#84cc16',
@@ -118,8 +178,6 @@ function getCategoryColor(name) {
   return PALETTE[index];
 }
 
-// Update charts
-// Render Budget Bars
 function renderBudgetBars(budgets) {
   const container = document.getElementById('budget-status-container');
   if (!budgets || budgets.length === 0) {
@@ -153,10 +211,8 @@ function renderBudgetBars(budgets) {
 }
 
 function updateCharts(summary, expenses) {
-  // Helpers
   const getColors = (items) => items.map(c => getCategoryColor(c.category || c));
 
-  // DETERMINE ACTIVE PERIOD (for filtering expenses)
   const monthInput = document.getElementById('filter-month').value;
   const yearInput = document.getElementById('filter-year').value;
 
@@ -164,13 +220,11 @@ function updateCharts(summary, expenses) {
   const currentMonth = monthInput ? parseInt(monthInput) : (now.getMonth() + 1);
   const currentYear = yearInput ? parseInt(yearInput) : now.getFullYear();
 
-  // PROCESS DAILY DATA
   const filteredExps = expenses ? expenses.filter(e => {
     const d = new Date(e.expense_date);
     return (d.getMonth() + 1) === currentMonth && d.getFullYear() === currentYear;
   }) : [];
 
-  // Aggregate
   const dailyMap = {};
   filteredExps.forEach(e => {
     const d = new Date(e.expense_date);
@@ -178,7 +232,6 @@ function updateCharts(summary, expenses) {
     dailyMap[key] = (dailyMap[key] || 0) + Number(e.amount);
   });
 
-  // Generate arrays
   const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
   const labels = [];
   const data = [];
@@ -197,12 +250,11 @@ function updateCharts(summary, expenses) {
     }
   }
 
-  // Point Styles
   const pointRadii = data.map((_, i) => i === maxIndex && maxVal > 0 ? 6 : 0);
   const pointColors = data.map((_, i) => i === maxIndex ? '#F87171' : '#8B5CF6');
   const pointHoverRadii = data.map((_, i) => i === maxIndex ? 8 : 6);
 
-  // PIE
+  // PIE CHART
   if (categoryPieChart) categoryPieChart.destroy();
   categoryPieChart = new Chart(document.getElementById('categoryPieChart'), {
     type: 'doughnut',
@@ -218,7 +270,7 @@ function updateCharts(summary, expenses) {
     options: { cutout: '70%' }
   });
 
-  // LINE (Interactive)
+  // LINE CHART
   if (trendChart) trendChart.destroy();
   const verticalLinePlugin = {
     id: 'verticalLine',
@@ -308,7 +360,7 @@ function updateCharts(summary, expenses) {
     plugins: [verticalLinePlugin]
   });
 
-  // BAR Breakdown
+  // BAR CHART - Category Breakdown
   if (categoryBarChart) categoryBarChart.destroy();
   categoryBarChart = new Chart(document.getElementById('categoryBarChart'), {
     type: 'bar',
@@ -324,7 +376,7 @@ function updateCharts(summary, expenses) {
     options: { scales: { y: { beginAtZero: true } } }
   });
 
-  // BAR Budget
+  // BAR CHART - Budget Comparison
   if (budgetComparisonChart) budgetComparisonChart.destroy();
   const budgetLabels = summary.budget_comparison.map(b => b.category);
   const baseColors = getColors(summary.budget_comparison);
@@ -353,31 +405,30 @@ function updateCharts(summary, expenses) {
   });
 }
 
-// Load categories
+/* =========================
+   CATEGORIES
+========================= */
+
 async function loadCategories() {
   try {
     const categories = await authFetchJSON(`${API}/categories`);
 
-    // Dropdowns
     const expenseSelect = document.getElementById('category');
     const budgetSelect = document.getElementById('budget-category');
 
     expenseSelect.innerHTML = '<option value="">Select Category</option>';
     budgetSelect.innerHTML = '<option value="">Select Category</option>';
 
-    // Display Tags
     const display = document.getElementById('categories-display');
     display.innerHTML = '';
 
     categories.forEach(c => {
-      // Add to dropdowns
       const opt = document.createElement('option');
       opt.value = c.category_id;
       opt.textContent = c.name;
       expenseSelect.appendChild(opt.cloneNode(true));
       budgetSelect.appendChild(opt);
 
-      // Add to display tags
       const tag = document.createElement('span');
       tag.textContent = c.name;
       display.appendChild(tag);
@@ -387,7 +438,10 @@ async function loadCategories() {
   }
 }
 
-// Render Expenses List
+/* =========================
+   EXPENSES
+========================= */
+
 function renderExpenses(expenses) {
   const list = document.getElementById('expenses-list');
   if (expenses.length === 0) {
@@ -407,7 +461,10 @@ function renderExpenses(expenses) {
   `).join('');
 }
 
-// Add Category
+/* =========================
+   FORM HANDLERS
+========================= */
+
 document.getElementById('category-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const nameInput = document.getElementById('new-category');
@@ -421,14 +478,13 @@ document.getElementById('category-form').addEventListener('submit', async (e) =>
     });
 
     nameInput.value = '';
-    loadCategories(); // Refresh list
+    loadCategories();
     showAlert('Category added successfully!', 'success');
   } catch (err) {
     showAlert('Failed to add category', 'danger');
   }
 });
 
-// Add Expense
 document.getElementById('expense-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -447,14 +503,13 @@ document.getElementById('expense-form').addEventListener('submit', async (e) => 
     });
 
     e.target.reset();
-    loadSummary(); // Refresh stats
+    loadSummary();
     showAlert('Expense added successfully!', 'success');
   } catch (err) {
     showAlert('Failed to add expense', 'danger');
   }
 });
 
-// Set Budget
 document.getElementById('budget-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -475,14 +530,19 @@ document.getElementById('budget-form').addEventListener('submit', async (e) => {
     });
 
     e.target.reset();
-    loadSummary(); // Refresh stats
+    loadSummary();
     showAlert('Budget set successfully!', 'success');
   } catch (err) {
     showAlert('Failed to set budget', 'danger');
   }
 });
 
-// Show Alert
+document.getElementById('apply-filters').addEventListener('click', loadSummary);
+
+/* =========================
+   ALERTS
+========================= */
+
 function showAlert(message, type) {
   const container = document.getElementById('alerts-container');
   const alert = document.createElement('div');
@@ -496,15 +556,3 @@ function showAlert(message, type) {
     setTimeout(() => alert.remove(), 500);
   }, 3000);
 }
-
-
-
-// Apply filter button
-document.getElementById('apply-filters')
-  .addEventListener('click', loadSummary);
-
-// Initial load
-document.addEventListener('DOMContentLoaded', () => {
-  loadCategories();
-  loadSummary();
-});
