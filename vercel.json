@@ -1,5 +1,7 @@
 {
   "routes": [
+    { "src": "/login", "dest": "/auth.html" },
+    { "src": "/signup", "dest": "/auth.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
