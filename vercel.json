@@ -1,7 +1,14 @@
 {
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
   "routes": [
-    { "src": "/login", "dest": "/auth.html" },
-    { "src": "/signup", "dest": "/auth.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
   ]
 }

@@ -1,5 +1,5 @@
-const API = 'https://expense-tracker-1-06mt.onrender.com'; // Use relative URLs for local development
-// const API = 'https://expense-tracker-1-06mt.onrender.com'; // Production URL
+const API = ''; // Use relative URLs to work both locally and in production
+// const API = 'https://expense-tracker-1-06mt.onrender.com'; // Production URL fallback if needed
 let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
 /* =========================
@@ -8,7 +8,7 @@ let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
 async function initClerk() {
   console.log("🔍 Starting Clerk initialization...");
-  
+
   // Wait for Clerk SDK to be available
   let attempts = 0;
   while (!window.Clerk && attempts < 100) {
@@ -40,7 +40,7 @@ async function waitForClerk() {
     await new Promise(res => setTimeout(res, 50));
     attempts++;
   }
-  
+
   if (!window.Clerk || !Clerk.loaded) {
     throw new Error("Clerk failed to load");
   }
@@ -76,10 +76,10 @@ async function authFetchJSON(url, options = {}) {
 
 window.addEventListener("load", async () => {
   console.log("📄 Page Loaded");
-  
+
   try {
     const clerkInitialized = await initClerk();
-    
+
     if (!clerkInitialized) {
       console.error("❌ Failed to initialize Clerk");
       alert("Authentication system failed to load. Please refresh the page.");
@@ -564,13 +564,13 @@ function handleServerWakeUp(err) {
       err.message.includes("NetworkError")
     ) {
       alert("⏳ Server is waking up.\nPlease wait 5–10 seconds and retry.");
-    return true;
+      return true;
+    }
+    return false;
   }
-  return false;
-}
-catch (err) {
-  if (!handleServerWakeUp(err)) {
-    showAlert("Failed to load data", "danger");
+  catch (err) {
+    if (!handleServerWakeUp(err)) {
+      showAlert("Failed to load data", "danger");
+    }
   }
-}
 }
