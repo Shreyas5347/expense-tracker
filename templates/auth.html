@@ -2,12 +2,13 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <title>{{ 'Sign Up' if mode == 'signup' else 'Login' }} - Expense Tracker</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker – Auth</title>
+
+    <link rel="icon" href="favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -40,34 +41,47 @@
         }
 
         @keyframes rotate {
-            0% { transform: rotate(0deg) translate(-10%, -10%); }
-            50% { transform: rotate(180deg) translate(10%, 10%); }
-            100% { transform: rotate(360deg) translate(-10%, -10%); }
+            0% {
+                transform: rotate(0deg) translate(-10%, -10%);
+            }
+
+            50% {
+                transform: rotate(180deg) translate(10%, 10%);
+            }
+
+            100% {
+                transform: rotate(360deg) translate(-10%, -10%);
+            }
         }
 
         .container {
             width: 100%;
             max-width: 480px;
             padding: 2rem;
-            position: relative;
             z-index: 10;
         }
 
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 24px;
             padding: 40px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
             color: white;
             animation: float 6s ease-in-out infinite;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         .header {
@@ -91,27 +105,26 @@
             margin: 0;
         }
 
-        #auth-container {
-            min-height: 400px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
         .loading {
             color: white;
             opacity: 0.7;
             text-align: center;
         }
 
-        /* Hide loading after Clerk mounts */
         .loading.hidden {
             display: none;
         }
 
-        .cl-card {
-            background: transparent !important;
-            box-shadow: none !important;
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .footer-text a {
+            color: #fff;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -123,114 +136,70 @@
                 <h1>Expense Tracker</h1>
                 <p>Master your finances with style</p>
             </div>
+
             <div id="auth-container">
                 <div class="loading" id="loading-indicator">Loading authentication...</div>
             </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">
-                    {% if mode == 'login' %}
-                    New here? <a href="/signup" style="color: #fff; text-decoration: underline;">Sign up</a>
-                    {% else %}
-                    Already have an account? <a href="/login" style="color: #fff; text-decoration: underline;">Login</a>
-                    {% endif %}
-                </p>
-            </div>
+
+            <div class="footer-text" id="toggle-text"></div>
         </div>
     </div>
 
-    <script 
-        async
-        crossorigin="anonymous"
-        data-clerk-publishable-key="{{ clerk_publishable_key }}"
-        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
-        onload="window.clerkLoaded = true"
-    ></script>
+    <!-- Clerk -->
+    <script async crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_c3dlZXQtamFja2FsLTMxLmNsZXJrLmFjY291bnRzLmRldiQ"
+        src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js">
+        </script>
 
     <script>
         async function initClerkAuth() {
-            console.log("🔍 [AUTH] Starting initialization...");
-            
-            // Wait for Clerk SDK to load
             while (!window.Clerk) {
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(r => setTimeout(r, 100));
             }
 
-            try {
-                await Clerk.load();
-                console.log("✅ [AUTH] Clerk loaded successfully");
+            await Clerk.load();
 
-                // Check if already logged in
-                if (Clerk.user) {
-                    console.log("ℹ️ [AUTH] User already logged in, redirecting...");
-                    window.location.href = '/';
-                    return;
-                }
+            if (Clerk.user) {
+                window.location.href = "/";
+                return;
+            }
 
-                const authContainer = document.getElementById('auth-container');
-                const loadingIndicator = document.getElementById('loading-indicator');
-                
-                // Hide loading indicator only after we're ready to mount
-                if (loadingIndicator) {
-                    loadingIndicator.classList.add('hidden');
-                }
+            const isSignup = window.location.pathname.includes("signup");
 
-                const mode = "{{ mode }}";
-                const config = {
-                    appearance: {
-                        variables: {
-                            colorPrimary: '#667eea',
-                            colorText: '#ffffff',
-                            colorBackground: 'transparent',
-                            colorInputBackground: 'rgba(255,255,255,0.1)',
-                            colorInputText: '#ffffff'
-                        },
-                        elements: {
-                            card: { boxShadow: 'none', background: 'transparent' },
-                            headerTitle: { color: 'white' },
-                            headerSubtitle: { color: 'rgba(255,255,255,0.8)' },
-                            socialButtonsBlockButton: {
-                                background: 'rgba(255,255,255,0.1)',
-                                color: 'white',
-                                border: '1px solid rgba(255,255,255,0.2)'
-                            },
-                            dividerLine: { background: 'rgba(255,255,255,0.2)' },
-                            dividerText: { color: 'rgba(255,255,255,0.6)' },
-                            formFieldLabel: { color: 'white' },
-                            formButtonPrimary: {
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                            },
-                            footer: { display: 'none' }
-                        }
+            document.getElementById("toggle-text").innerHTML = isSignup
+                ? `Already have an account? <a href="/login">Login</a>`
+                : `New here? <a href="/signup">Sign up</a>`;
+
+            const config = {
+                appearance: {
+                    variables: {
+                        colorPrimary: '#667eea',
+                        colorText: '#ffffff',
+                        colorBackground: 'transparent',
+                        colorInputBackground: 'rgba(255,255,255,0.1)',
+                        colorInputText: '#ffffff'
                     },
-                    afterSignInUrl: '/',
-                    afterSignUpUrl: '/',
-                    signInUrl: '/login',
-                    signUpUrl: '/signup'
-                };
+                    elements: {
+                        card: { boxShadow: 'none', background: 'transparent' },
+                        footer: { display: 'none' }
+                    }
+                },
+                afterSignInUrl: "/",
+                afterSignUpUrl: "/",
+                signInUrl: "/login",
+                signUpUrl: "/signup"
+            };
 
-                console.log(`ℹ️ [AUTH] Mounting ${mode} component...`);
+            document.getElementById("loading-indicator").classList.add("hidden");
 
-                if (mode === 'signup') {
-                    await Clerk.mountSignUp(authContainer, config);
-                } else {
-                    await Clerk.mountSignIn(authContainer, config);
-                }
-
-                console.log("✅ [AUTH] Component mounted successfully");
-
-            } catch (err) {
-                console.error('❌ [AUTH] Initialization failed:', err);
-                const authContainer = document.getElementById('auth-container');
-                authContainer.innerHTML = '<p style="color: #ff6b6b; text-align: center;">Error loading authentication. Please refresh the page.</p>';
+            if (isSignup) {
+                Clerk.mountSignUp(document.getElementById("auth-container"), config);
+            } else {
+                Clerk.mountSignIn(document.getElementById("auth-container"), config);
             }
         }
 
-        // Start initialization when page loads
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initClerkAuth);
-        } else {
-            initClerkAuth();
-        }
+        initClerkAuth();
     </script>
 </body>
 

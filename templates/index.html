@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expense Tracker</title>
 
-  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="icon" href="favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -194,12 +194,12 @@
 
   <script 
     async
-    crossorigin="anonymous"
-    data-clerk-publishable-key="{{ clerk_publishable_key }}"
+    crossorigin="anonymous" 
+    data-clerk-publishable-key="pk_test_c3dlZXQtamFja2FsLTMxLmNsZXJrLmFjY291bnRzLmRldiQ"
     src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
   ></script>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+  <script src="script.js"></script>
+
 
 </html>

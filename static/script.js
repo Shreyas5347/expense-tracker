@@ -1,4 +1,4 @@
-const API = ''; // Use relative URLs for local development
+const API = 'https://expense-tracker-1-06mt.onrender.com'; // Use relative URLs for local development
 // const API = 'https://expense-tracker-1-06mt.onrender.com'; // Production URL
 let categoryPieChart, trendChart, categoryBarChart, budgetComparisonChart;
 
@@ -555,4 +555,22 @@ function showAlert(message, type) {
     alert.style.animation = 'fadeOut 0.5s ease forwards';
     setTimeout(() => alert.remove(), 500);
   }, 3000);
+}
+function handleServerWakeUp(err) {
+  try {
+    if (
+      err.message.includes("Failed to fetch") ||
+      err.message.includes("401") ||
+      err.message.includes("NetworkError")
+    ) {
+      alert("⏳ Server is waking up.\nPlease wait 5–10 seconds and retry.");
+    return true;
+  }
+  return false;
+}
+catch (err) {
+  if (!handleServerWakeUp(err)) {
+    showAlert("Failed to load data", "danger");
+  }
+}
 }
