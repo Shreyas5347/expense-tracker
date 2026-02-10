@@ -502,8 +502,127 @@ button:hover {
     /* Dark Red */
 }
 
+/* Navigation & Tabs */
+.nav-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 10px 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px -5px var(--shadow);
+    border: 1px solid var(--border);
+    position: sticky;
+    top: 20px;
+    z-index: 100;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    width: auto;
+    box-shadow: none;
+    transition: var(--transition);
+}
+
+.nav-btn:hover {
+    background: var(--hover-bg);
+    color: var(--primary);
+    transform: none;
+    box-shadow: none;
+}
+
+.nav-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.filter-toggle-btn {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    background: var(--hover-bg);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+.filter-toggle-btn:hover {
+    background: var(--primary-light);
+    color: white;
+}
+
+/* Filter Slide Down */
+.filter-wrapper {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 0;
+}
+
+.filter-wrapper.show {
+    max-height: 500px;
+    /* Adjust based on content */
+    margin-bottom: 40px;
+}
+
+.filter-content {
+    margin-bottom: 0 !important;
+}
+
+/* Tab Content Visibility */
+.tab-content {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+    .nav-menu {
+        flex-direction: column;
+        gap: 15px;
+        position: relative;
+        top: 0;
+    }
+
+    .nav-tabs {
+        width: 100%;
+    }
+
+    .nav-btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .filter-toggle-btn {
+        width: 100%;
+    }
+
     .charts-grid {
         grid-template-columns: 1fr;
     }

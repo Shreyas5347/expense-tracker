@@ -105,6 +105,37 @@ window.addEventListener("load", async () => {
     await loadCategories();
     await loadSummary();
 
+    // Tab Switching Logic
+    const tabButtons = document.querySelectorAll('.nav-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetTab = btn.getAttribute('data-tab');
+
+        // Update Buttons
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update Contents
+        tabContents.forEach(content => {
+          if (content.id === targetTab) {
+            content.classList.remove('hidden');
+          } else {
+            content.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Filter Toggle Logic
+    const filterBtn = document.getElementById('toggle-filter');
+    const filterSection = document.getElementById('filter-section');
+
+    filterBtn.addEventListener('click', () => {
+      filterSection.classList.toggle('show');
+    });
+
   } catch (err) {
     console.error("❌ Initialization failed:", err);
     alert("Failed to load the application. Please refresh the page.");

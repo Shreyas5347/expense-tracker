@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
-#from flask_talisman import Talisman
 from dotenv import load_dotenv
 from datetime import datetime
 import psycopg2
